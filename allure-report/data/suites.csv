@@ -1,0 +1,6 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Sat Jul 08 13:33:07 IST 2023","Sat Jul 08 13:33:19 IST 2023","12243","","TestSuite1","","","","Verifying login functionality with valid credentials",""
+"passed","Tue Jun 13 23:51:29 IST 2023","Tue Jun 13 23:51:49 IST 2023","20026","","TestSuite","","","","Verifying the Home page URL",""
+"passed","Tue Jun 13 23:44:12 IST 2023","Tue Jun 13 23:44:39 IST 2023","27324","","TestSuite","","TestSuite","Verifying the Home page URL","Verifying the Home page URL",""
+"passed","Sat Jul 08 13:33:04 IST 2023","Sat Jul 08 13:33:05 IST 2023","1442","","TestSuite1","","","","Verifying the website navigation url..",""
+"passed","Sat Jul 08 13:33:05 IST 2023","Sat Jul 08 13:33:07 IST 2023","1652","","TestSuite1","","","","Verifying login functionality with Invalid credentials",""

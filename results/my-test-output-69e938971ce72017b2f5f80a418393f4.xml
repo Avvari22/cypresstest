@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="25.018" tests="3" failures="1">
+  <testsuite name="Root Suite" timestamp="2023-06-13T17:04:41" tests="0" file="cypress\e2e\LoginPage.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="TestSuite1" timestamp="2023-06-13T17:04:41" tests="3" time="24.946" failures="1">
+    <testcase name="TestSuite1 Verifying the website navigation url.." time="2.010" classname="Verifying the website navigation url..">
+    </testcase>
+    <testcase name="TestSuite1 Verifying login functionality with Invalid credentials" time="2.593" classname="Verifying login functionality with Invalid credentials">
+    </testcase>
+    <testcase name="TestSuite1 Verifying login functionality with valid credentials" time="0.000" classname="Verifying login functionality with valid credentials">
+      <failure message="Timed out retrying after 10050ms: `cy.click()` failed because this element is not visible:
+
+`&lt;a id=&quot;logout_sidebar_link&quot; class=&quot;bm-item menu-item&quot; href=&quot;#&quot; tabindex=&quot;-1&quot; style=&quot;display: block;&quot;&gt;Logout&lt;/a&gt;`
+
+This element `&lt;a#logout_sidebar_link.bm-item.menu-item&gt;` is not visible because its parent `&lt;div.bm-menu-wrap&gt;` has CSS property: `display: none`
+
+Fix this problem, or use `{force: true}` to disable error checking.
+
+https://on.cypress.io/element-cannot-be-interacted-with" type="CypressError"><![CDATA[CypressError: Timed out retrying after 10050ms: `cy.click()` failed because this element is not visible:
+
+`<a id="logout_sidebar_link" class="bm-item menu-item" href="#" tabindex="-1" style="display: block;">Logout</a>`
+
+This element `<a#logout_sidebar_link.bm-item.menu-item>` is not visible because its parent `<div.bm-menu-wrap>` has CSS property: `display: none`
+
+Fix this problem, or use `{force: true}` to disable error checking.
+
+https://on.cypress.io/element-cannot-be-interacted-with
+    at runVisibilityCheck (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:151959:66)
+    at Object.isStrictlyVisible (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:151973:10)
+    at runAllChecks (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:130563:26)
+    at retryActionability (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:130631:16)
+    at tryCatcher (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:8914:23)
+    at Promise.attempt.Promise.try (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:6188:29)
+    at whenStable (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:146742:65)
+    at <unknown> (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:146183:14)
+    at tryCatcher (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:8914:23)
+    at Promise._settlePromiseFromHandler (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:6849:31)
+    at Promise._settlePromise (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:6906:18)
+    at Promise._settlePromise0 (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:6951:10)
+    at Promise._settlePromises (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:7031:18)
+    at Promise._fulfill (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:6975:18)
+    at <unknown> (https://www.saucedemo.com/__cypress/runner/cypress_runner.js:8589:46)
+From Your Spec Code:
+    at Context.eval (webpack:///./cypress/e2e/LoginPage.cy.js:49:39)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
