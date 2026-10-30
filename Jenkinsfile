@@ -18,6 +18,7 @@ pipeline {
   post {
     always {
       script {
+        // Step 1: Verify Allure results exist on Windows using PowerShell
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
           powershell '''
             if (-not (Test-Path -Path "allure-results")) {
@@ -27,7 +28,7 @@ pipeline {
 
             $results = Get-ChildItem -Path "allure-results" -Filter "*-result.json" -File
             $count = $results.Count
-            Write-Host "Allure test results: $count"
+            Write-Host "Allure test results count: $count"
             if ($count -eq 0) {
               Write-Error "No Allure test results were generated"
               exit 1
@@ -35,17 +36,15 @@ pipeline {
           '''
         }
 
+        // Step 2: Generate Allure report via npx (no global npm path dependencies needed)
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          bat 'npm install --global allure-commandline'
-        }
-
-        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          bat 'allure generate allure-results --clean -o allure-report'
+          bat 'npx allure-commandline generate allure-results --clean -o allure-report'
         }
       }
 
+      // Step 3: Archive report artifacts
       archiveArtifacts(
-        artifacts: 'allure-report/**,allure-results/**,playwright-report/**,test-results/**',
+        artifacts: 'allure-report/**,allure-results/**',
         allowEmptyArchive: true
       )
     }
