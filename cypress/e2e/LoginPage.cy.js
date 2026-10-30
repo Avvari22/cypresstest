@@ -1,4 +1,5 @@
 describe('TestSuite1', () => {
+    const shortTimeout=5000;
     it('Verifying the website navigation url..', () => {
         //Verifying the URL
         cy.visit(Cypress.env('baseUrl'))
@@ -46,9 +47,9 @@ describe('TestSuite1', () => {
         //Verifying the url after login
         cy.url().should('eq', 'https://www.saucedemo.com/inventory.html')
 
-        cy.waitUntil(() => {
-            cy.get('#react-burger-menu-btn').should('be.visible').click();
-        })
+        cy.wait(shortTimeout)
+        cy.get('#react-burger-menu-btn').should('be.visible').click();
+
 
         cy.get('#logout_sidebar_link').should('be.visible').click()
 
