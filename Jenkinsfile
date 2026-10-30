@@ -1,52 +1,99 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Install dependencies') {
-      steps {
-        bat 'node --version && npm --version && npm ci'
-      }
+    options {
+        timestamps()
+        skipDefaultCheckout(true)
+        disableConcurrentBuilds()
     }
 
-    stage('Run Cypress tests') {
-      steps {
-        bat 'npm run cy:run'
-      }
+    environment {
+        CI = 'true'
+        // Disable ANSI color escape codes across Node, CLI, and Cypress
+        NO_COLOR = '1'
+        FORCE_COLOR = '0'
+        CYPRESS_CACHE = "${WORKSPACE}\\.cypress-cache"
     }
-  }
 
-  post {
-    always {
-      script {
-        // Step 1: Verify Allure results exist on Windows using PowerShell
-        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          powershell '''
-            if (-not (Test-Path -Path "allure-results")) {
-              Write-Error "Allure results directory is missing"
-              exit 1
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
             }
-
-            $results = Get-ChildItem -Path "allure-results" -Filter "*-result.json" -File
-            $count = $results.Count
-            Write-Host "Allure test results count: $count"
-            if ($count -eq 0) {
-              Write-Error "No Allure test results were generated"
-              exit 1
-            }
-          '''
         }
 
-        // Step 2: Generate Allure report via npx (no global npm path dependencies needed)
-        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          bat 'npx allure-commandline generate allure-results --clean -o allure-report'
+        stage('Verify Environment') {
+            steps {
+                bat '''
+                    node --version
+                    npm --version
+                    java -version
+                    git --version
+                '''
+            }
         }
-      }
 
-      // Step 3: Archive report artifacts
-      archiveArtifacts(
-        artifacts: 'allure-report/**,allure-results/**',
-        allowEmptyArchive: true
-      )
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm ci'
+            }
+        }
+
+        stage('Verify Cypress Binary') {
+            steps {
+                bat 'npx cypress verify'
+            }
+        }
+
+        stage('Run Cypress Tests') {
+            steps {
+                script {
+                    // Running Cypress headless with color output explicitly disabled
+                    def exitCode = bat(
+                        script: 'npx cypress run --headless --browser chrome',
+                        returnStatus: true
+                    )
+
+                    // Mark as UNSTABLE if tests fail so post/reporting steps still run
+                    if (exitCode != 0) {
+                        currentBuild.result = 'UNSTABLE'
+                        echo "Cypress tests completed with failures (exit code: ${exitCode})"
+                    }
+                }
+            }
+        }
+
+        stage('Publish Allure Report') {
+            steps {
+                // Uses the Jenkins Allure Plugin to build and attach trend reports natively
+                allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+            }
+        }
     }
-  }
+
+    post {
+        always {
+            archiveArtifacts(
+                artifacts: 'allure-results/**,cypress/videos/**,cypress/screenshots/**',
+                allowEmptyArchive: true
+            )
+
+            junit(
+                testResults: 'cypress/results/*.xml,junit-results/*.xml',
+                allowEmptyResults: true
+            )
+        }
+
+        success {
+            echo 'All Cypress tests passed successfully!'
+        }
+
+        unstable {
+            echo 'Cypress tests finished with test failures. Review screenshots, videos, and the Allure report.'
+        }
+
+        failure {
+            echo 'Pipeline failed due to a build or configuration error.'
+        }
+    }
 }
