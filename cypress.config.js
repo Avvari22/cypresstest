@@ -5,25 +5,18 @@ const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 module.exports = defineConfig({
   e2e: {
     "chromeWebSecurity":false,
+    specPattern: "cypress/e2e/**/*.feature",
     defaultCommandTimeout: 10000,
     pageLoadTimeout:60000,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      on("file:preprocessor", cucumber());
       allureWriter(on, config);
-                return config;
+      return config;
     },   
     "env":{
       "baseUrl":"https://www.saucedemo.com/"
     }, 
-    
-  },
-  setupNodeEvents(on, config)  {
-
-    on("file:preprocessor", cucumber());
-    
-    }
- 
+  }
 });
-
 
 

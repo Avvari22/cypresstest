@@ -1,4 +1,4 @@
-import {Given, When, Then} from 'cypress-cucumber-preprocessor'
+import {When, Then} from 'cypress-cucumber-preprocessor/steps'
 When('Visiting home page',()=>{
     cy.visit(Cypress.env('baseUrl'));
 })
