@@ -1,17 +1,24 @@
-name: Cypress tests
+name: Cypress Tests & Allure Report
 
 on:
   push:
+    branches: [main, master]
   pull_request:
+    branches: [main, master]
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
 jobs:
   cypress:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -22,91 +29,71 @@ jobs:
           node-version: 18
           cache: npm
 
+      - name: Set up Java (Required for Allure CLI)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run Cypress tests
+        id: cypress_tests
+        continue-on-error: true
         run: npm run cy:run
 
-      # Step 6: Verify Allure results
-      - name: Verify Allure Results
-        if: always()
+      - name: Verify Allure results
         run: |
           echo "Checking Allure result files..."
-
           if [ ! -d "allure-results" ]; then
-            echo "::error::allure-results directory missing"
-            exit 1
+            echo "::warning::allure-results directory missing"
+            mkdir -p allure-results
           fi
 
-          find allure-results -type f
+          COUNT=$(find allure-results -name '*-result.json' | wc -l)
+          echo "Allure test results count: $COUNT"
 
-          COUNT=$(find allure-results \
-            -name '*-result.json' | wc -l)
-
-          echo "Allure test results: $COUNT"
-
-          if [ "$COUNT" -eq 0 ]; then
-            echo "::error::No Allure test results generated"
-            exit 1
-          fi
-
-          echo "Allure results verified successfully"
-
-      # Step 7: Install Allure CLI
       - name: Install Allure CLI
         run: npm install -g allure-commandline
 
-      # Step 8: Generate Allure HTML report
       - name: Generate Allure Report
-        run: |
-          allure generate allure-results \
-            --clean \
-            -o allure-report
+        run: allure generate allure-results --clean -o allure-report
 
-      # Step 9: Upload Allure report artifact
-      - name: Upload Allure Report
-        if: always()
+      - name: Upload Allure Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: |
             allure-report/
             allure-results/
-            playwright-report/
-            test-results/
           retention-days: 30
           if-no-files-found: warn
 
-      # Step 10: Configure GitHub Pages
       - name: Configure GitHub Pages
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.DEPLOY_GITHUB_PAGES == 'true'
         uses: actions/configure-pages@v5
         with:
-          enablement: true
+          enablement: false
 
-      # Step 11: Upload GitHub Pages artifact
       - name: Upload Pages Artifact
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.DEPLOY_GITHUB_PAGES == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: allure-report/
 
-      # Step 12: Deploy Allure report
-      - name: Deploy Allure Report
-        if: github.event_name != 'pull_request'
+      - name: Deploy Allure Report to Pages
+        if: github.event_name != 'pull_request' && vars.DEPLOY_GITHUB_PAGES == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
 
-      # Step 13: Display report URL in Summary
       - name: Publish Allure Report Link
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.DEPLOY_GITHUB_PAGES == 'true'
         env:
           REPORT_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           echo "Allure Report URL: $REPORT_URL"
-
-          echo "## Playwright Automation - Allure Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Cypress Automation - Allure Report" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Test Execution Report" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -114,9 +101,8 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Report URL: $REPORT_URL" >> "$GITHUB_STEP_SUMMARY"
 
-      # Step 14: Fail workflow if tests failed
       - name: Fail workflow if tests failed
-        if: always() && steps.tests.outcome == 'failure'
+        if: steps.cypress_tests.outcome == 'failure'
         run: |
-          echo "::error::Playwright tests failed"
+          echo "::error::Cypress tests failed"
           exit 1

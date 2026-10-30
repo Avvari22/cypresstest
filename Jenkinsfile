@@ -4,13 +4,13 @@ pipeline {
   stages {
     stage('Install dependencies') {
       steps {
-        sh 'node --version && npm --version && npm ci'
+        bat 'node --version && npm --version && npm ci'
       }
     }
 
     stage('Run Cypress tests') {
       steps {
-        sh 'npm run cy:run'
+        bat 'npm run cy:run'
       }
     }
   }
@@ -19,29 +19,28 @@ pipeline {
     always {
       script {
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          sh '''
-            set -eu
-            if [ ! -d allure-results ]; then
-              echo "Allure results directory is missing"
+          powershell '''
+            if (-not (Test-Path -Path "allure-results")) {
+              Write-Error "Allure results directory is missing"
               exit 1
-            fi
+            }
 
-            find allure-results -type f
-            count=$(find allure-results -type f -name '*-result.json' | wc -l)
-            echo "Allure test results: $count"
-            if [ "$count" -eq 0 ]; then
-              echo "No Allure test results were generated"
+            $results = Get-ChildItem -Path "allure-results" -Filter "*-result.json" -File
+            $count = $results.Count
+            Write-Host "Allure test results: $count"
+            if ($count -eq 0) {
+              Write-Error "No Allure test results were generated"
               exit 1
-            fi
+            }
           '''
         }
 
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          sh 'npm install --global allure-commandline'
+          bat 'npm install --global allure-commandline'
         }
 
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-          sh 'allure generate allure-results --clean -o allure-report'
+          bat 'allure generate allure-results --clean -o allure-report'
         }
       }
 
