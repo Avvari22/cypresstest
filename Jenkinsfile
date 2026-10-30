@@ -1,14 +1,10 @@
 pipeline {
   agent any
 
-  tools {
-    nodejs 'NodeJS 18'
-  }
-
   stages {
     stage('Install dependencies') {
       steps {
-        sh 'npm ci'
+        sh 'node --version && npm --version && npm ci'
       }
     }
 
