@@ -71,16 +71,11 @@ pipeline {
         }
     }
 
-    post {
+   post {
         always {
             archiveArtifacts(
                 artifacts: 'allure-results/**,cypress/videos/**,cypress/screenshots/**',
                 allowEmptyArchive: true
-            )
-
-            junit(
-                testResults: 'cypress/results/*.xml,junit-results/*.xml',
-                allowEmptyResults: true
             )
         }
 
