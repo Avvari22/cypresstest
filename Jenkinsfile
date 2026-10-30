@@ -10,7 +10,7 @@ pipeline {
 
     stage('Run Cypress tests') {
       steps {
-        bat 'npm run cy:run'
+        bat 'npm run test:allure'
       }
     }
   }
