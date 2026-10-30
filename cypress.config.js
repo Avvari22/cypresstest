@@ -5,7 +5,10 @@ const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 module.exports = defineConfig({
   e2e: {
     "chromeWebSecurity":false,
-    specPattern: "cypress/e2e/**/*.feature",
+    specPattern: [
+      "cypress/e2e/**/*.feature",
+      "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
+    ],
     defaultCommandTimeout: 10000,
     pageLoadTimeout:60000,
     setupNodeEvents(on, config) {
@@ -18,5 +21,4 @@ module.exports = defineConfig({
     }, 
   }
 });
-
 

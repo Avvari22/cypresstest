@@ -46,7 +46,8 @@ describe('TestSuite1',()=>{
         //Verifying the url after login
         cy.url().should('eq','https://www.saucedemo.com/inventory.html')
         
-        cy.get('#logout_sidebar_link').click()
+        cy.get('#react-burger-menu-btn').should('be.visible').click()
+        cy.get('#logout_sidebar_link').should('be.visible').click()
 
     })
    
