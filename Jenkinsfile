@@ -83,30 +83,41 @@ pipeline {
             }
         }
 
-        // 7. Generate and publish Allure report
-        stage('Publish Allure Report') {
+          stage('Verify Allure Results') {
             steps {
                 script {
-                    if (fileExists('allure-results')) {
-                        allure([
-                            includeProperties: false,
-                            jdk: '',
-                            results: [
-                                [path: 'allure-results']
-                            ],
-                            reportBuildPolicy: 'ALWAYS'
-                        ])
-                    } else {
-                        echo 'Allure results directory not found.'
+                    def resultCode = bat(
+                        script: 'dir /b "allure-results\\*-result.json" >nul 2>&1',
+                        returnStatus: true
+                    )
+
+                    if (resultCode != 0) {
+                        error('Allure result JSON files not found. Check Cypress Allure plugin configuration.')
                     }
+
+                    echo 'Allure result JSON files found successfully.'
                 }
+            }
+        }
+
+        stage('Publish Allure Report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    results: [
+                        [path: 'allure-results']
+                    ],
+                    reportBuildPolicy: 'ALWAYS'
+                ])
+
+                echo 'Allure report generated and published successfully.'
             }
         }
     }
 
     post {
 
-        // Always archive execution evidence
         always {
             archiveArtifacts(
                 artifacts: '''
@@ -119,33 +130,15 @@ pipeline {
         }
 
         success {
-            echo '''
-                =========================================
-                BUILD STATUS: SUCCESS
-                Cypress execution completed successfully.
-                Allure report published.
-                =========================================
-            '''
+            echo 'BUILD SUCCESS: Cypress tests passed and Allure report published.'
         }
 
         failure {
-            echo '''
-                =========================================
-                BUILD STATUS: FAILURE
-                Cypress execution failed.
-                Review screenshots, videos and Allure.
-                =========================================
-            '''
+            echo 'BUILD FAILURE: Check Cypress execution and Allure configuration.'
         }
 
         unstable {
-            echo '''
-                =========================================
-                BUILD STATUS: UNSTABLE
-                Investigate Jenkins publishers and
-                other build-result modifications.
-                =========================================
-            '''
+            echo 'BUILD UNSTABLE: Investigate Jenkins build status.'
         }
 
         cleanup {
