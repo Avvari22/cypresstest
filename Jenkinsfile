@@ -10,7 +10,10 @@ pipeline {
     }
 
     environment {
-        CI = 'true'
+        CI = 'true',
+        NO_COLOR = '1'
+        FORCE_COLOR = '0'
+        CYPRESS_CACHE = "${WORKSPACE}\\.cypress-cache"
     }
 
     stages {
