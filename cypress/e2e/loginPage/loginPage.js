@@ -1,7 +1,7 @@
-import {When, Then} from 'cypress-cucumber-preprocessor/steps'
+import { When, Then } from '@badeball/cypress-cucumber-preprocessor'
 When('Visiting home page',()=>{
-    cy.visit(Cypress.env('baseUrl'));
+    cy.visit(Cypress.config('baseUrl'));
 })
 Then('Verify the url',()=>{
-    cy.url().should('eq',Cypress.env('baseUrl'))
+    cy.url().should('eq',Cypress.config('baseUrl'))
 })

@@ -1,8 +1,16 @@
 const { defineConfig } = require("cypress");
 const allureWriter = require("@shelex/cypress-allure-plugin/writer");
-const cucumber = require("cypress-cucumber-preprocessor").default;
+const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
+const cypressOnFix = require("cypress-on-fix");
+const {
+  addCucumberPreprocessorPlugin,
+} = require("@badeball/cypress-cucumber-preprocessor");
+const {
+  createEsbuildPlugin,
+} = require("@badeball/cypress-cucumber-preprocessor/esbuild");
 
 module.exports = defineConfig({
+  baseUrl: "https://www.saucedemo.com/",
   e2e: {
     chromeWebSecurity: false,
     specPattern: [
@@ -11,13 +19,16 @@ module.exports = defineConfig({
     ],
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
-    env: {
-      baseUrl: "https://www.saucedemo.com/",
-    },
-
-    setupNodeEvents(on, config) {
-      on("file:preprocessor", cucumber());
+    async setupNodeEvents(cypressOn, config) {
+      const on = cypressOnFix(cypressOn);
       allureWriter(on, config);
+      await addCucumberPreprocessorPlugin(on, config);
+      on(
+        "file:preprocessor",
+        createBundler({
+          plugins: [createEsbuildPlugin(config)],
+        })
+      );
 
       return config;
     },

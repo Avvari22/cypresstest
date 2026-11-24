@@ -2,11 +2,11 @@ describe('TestSuite1', () => {
     const shortTimeout=5000;
     it('Verifying the website navigation url..', () => {
         //Verifying the URL
-        cy.visit(Cypress.env('baseUrl'))
+        cy.visit(Cypress.config('baseUrl'))
     })
 
     it('Verifying login functionality with Invalid credentials', () => {
-        cy.visit(Cypress.env('baseUrl'))
+        cy.visit(Cypress.config('baseUrl'))
         //Verifying the title label
         cy.get('div.login_logo').should('have.text', 'Swag Labs')
 
@@ -29,7 +29,7 @@ describe('TestSuite1', () => {
     })
     it('Verifying login functionality with valid credentials', () => {
         //Verifying the URL
-        cy.visit(Cypress.env('baseUrl'))
+        cy.visit(Cypress.config('baseUrl'))
         //Username: standard_user
         //Password: secret_sauce
         //Verifying the title label
