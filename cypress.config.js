@@ -10,8 +10,8 @@ const {
 } = require("@badeball/cypress-cucumber-preprocessor/esbuild");
 
 module.exports = defineConfig({
-  baseUrl: "https://www.saucedemo.com/",
   e2e: {
+    baseUrl: "https://www.saucedemo.com/",
     chromeWebSecurity: false,
     specPattern: [
       "cypress/e2e/**/*.feature",
